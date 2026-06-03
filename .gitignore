@@ -1,0 +1,25 @@
+# Backend
+ems_backend/venv/
+ems_backend/__pycache__/
+ems_backend/db.sqlite3
+ems_backend/.env
+
+# Frontend
+ems_frontend/node_modules/
+ems_frontend/dist/
+ems_frontend/.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+*.pyc
+*.pyo
+
+# Logs
+*.log
