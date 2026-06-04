@@ -1,13 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from .choices import UserRole
 
 
 class User(AbstractUser):
-
-    ROLE_CHOICES = (
-        ("ADMIN", "Admin"),
-        ("EMPLOYEE", "Employee"),
-    )
 
     email = models.EmailField(unique=True)
 
@@ -16,8 +12,8 @@ class User(AbstractUser):
 
     role = models.CharField(
         max_length=20,
-        choices=ROLE_CHOICES,
-        default="EMPLOYEE"
+        choices=UserRole.choices,
+        default=UserRole.EMPLOYEE
     )
 
     must_change_password = models.BooleanField(default=True)
