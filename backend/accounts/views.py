@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
+
+
 
 from accounts.serializers.AdminUserSerializer import AdminUserSerializer
 
@@ -21,10 +23,7 @@ class LoginView(APIView):
         )
 
         if not user:
-            return Response(
-                {"message": "Invalid credentials"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+            raise AuthenticationFailed('Invalid credentials')
 
         refresh = RefreshToken.for_user(user)
 
