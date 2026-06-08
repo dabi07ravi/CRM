@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from accounts.serializers.AdminUserSerializer import AdminUserSerializer
+
+from accounts.serializers.EmployeeUserSerializer import EmployeeUserSerializer
 
 class LoginView(APIView):
 
@@ -28,12 +31,14 @@ class LoginView(APIView):
         refresh["email"] = user.email
         refresh["role"] = user.role
 
+
+        if user.role.upper() == 'ADMIN':
+            serializer = AdminUserSerializer(user)
+        else:
+            serializer = EmployeeUserSerializer(user)
+
         return Response({
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
-            "user": {
-                "id": user.id,
-                "email": user.email,
-                "role": user.role,
-            }
+            "user" : serializer.data
         })
