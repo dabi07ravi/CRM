@@ -8,6 +8,8 @@ from accounts.choices import UserRole
 from accounts.permissions import IsAdmin
 
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+
 
 User = get_user_model()
 
@@ -31,6 +33,8 @@ class EmployeeCreateView(APIView):
 
                 temp_password = secrets.token_urlsafe(8)
 
+                print("temppp", temp_password)
+
                 employee = User.objects.create(
                     email=serializer.validated_data["email"],
                     first_name=serializer.validated_data["first_name"],
@@ -42,13 +46,77 @@ class EmployeeCreateView(APIView):
                 employee.set_password(temp_password)
                 employee.save()
 
-                serializer = EmployeeGetSerializer(employee)
-
                 return Response({
                     "message": "Employee created successfully",
-                    "user" : serializer.data
+                    "user" :  EmployeeGetSerializer(employee).data
                 })
         
             except Exception as e:
                 print("eeror",e)
                 raise
+
+
+
+class EmployeeListView(APIView):
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request):
+
+        employees = User.objects.filter(role=UserRole.EMPLOYEE)
+
+        serializer = EmployeeGetSerializer(
+            employees,
+            many=True
+        )
+
+        return Response(serializer.data)
+    
+
+
+class EmployeeDetailView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+
+        employee = get_object_or_404(
+            User,
+            id=id,
+            role="EMPLOYEE"
+        )
+
+        if (
+            request.user.role == "EMPLOYEE"
+            and request.user.id != employee.id
+        ):
+            return Response(
+                {"message": "Permission denied"},
+                status=403
+            )
+
+        serializer = EmployeeGetSerializer(employee)
+
+        return Response(serializer.data)
+    
+
+
+
+
+class UploadProfilePictureView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+
+        user = request.user
+
+        user.profile_pic = request.FILES.get(
+            "profile_pic"
+        )
+
+        user.save()
+
+        return Response({
+            "message": "Profile picture uploaded"
+        })

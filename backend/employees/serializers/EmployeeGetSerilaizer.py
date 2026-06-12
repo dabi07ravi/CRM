@@ -15,5 +15,6 @@ class EmployeeGetSerializer(serializers.ModelSerializer):
             "email",
             "role",
             "must_change_password",
+            "profile_pic",
             "created_at",
         )
