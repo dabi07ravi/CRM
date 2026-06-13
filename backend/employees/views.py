@@ -33,7 +33,6 @@ class EmployeeCreateView(APIView):
 
                 temp_password = secrets.token_urlsafe(8)
 
-                print("temppp", temp_password)
 
                 employee = User.objects.create(
                     email=serializer.validated_data["email"],
