@@ -34,7 +34,7 @@ class EmployeeCreateView(APIView):
                 temp_password = secrets.token_urlsafe(8)
 
 
-                employee = User.objects.create(
+                employee = User(
                     email=serializer.validated_data["email"],
                     first_name=serializer.validated_data["first_name"],
                     last_name=serializer.validated_data["last_name"],
@@ -82,7 +82,7 @@ class EmployeeDetailView(APIView):
         employee = get_object_or_404(
             User,
             id=id,
-            role="EMPLOYEE"
+            role=UserRole.EMPLOYEE
         )
 
         if (
@@ -97,6 +97,26 @@ class EmployeeDetailView(APIView):
         serializer = EmployeeGetSerializer(employee)
 
         return Response(serializer.data)
+    
+
+class EmployeeDeleteView(APIView):
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+
+    def delete(self, request, id):
+
+        employee = get_object_or_404(
+            User,
+            id=id,
+            role=UserRole.EMPLOYEE
+        )
+
+        employee.delete()
+
+        return Response({
+            "message": "Employee deleted successfully"
+        })
     
 
 
