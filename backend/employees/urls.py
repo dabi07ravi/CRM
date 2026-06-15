@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import EmployeeCreateView, EmployeeListView, EmployeeDetailView, UploadProfilePictureView, EmployeeDeleteView
+from .views import EmployeeCreateView, EmployeeListView, EmployeeDetailView, UploadProfilePictureView, EmployeeDeleteView, ChangePasswordView
 
 urlpatterns = [
     path("create/", EmployeeCreateView.as_view(), name="create_employee"),
@@ -14,5 +14,12 @@ urlpatterns = [
     "delete/<int:id>/",
     EmployeeDeleteView.as_view(),
     name="del_employee"
-)
+),
+    path(
+    "reset_password/",
+    ChangePasswordView.as_view(),
+    name="reset_password"
+),
+
+
 ]

@@ -16,6 +16,7 @@ User = get_user_model()
 
 from employees.serializers.EmployeeCreateSerializer import EmployeeCreateSerializer
 from employees.serializers.EmployeeGetSerilaizer import EmployeeGetSerializer
+from employees.serializers.ChangePasswordSerializer import ChangePasswordSerializer
 
 
 class EmployeeCreateView(APIView):
@@ -48,12 +49,54 @@ class EmployeeCreateView(APIView):
 
                 return Response({
                     "message": "Employee created successfully",
-                    "user" :  EmployeeGetSerializer(employee).data
+                    "user" :  EmployeeGetSerializer(employee).data,
+                    "temp_password" : temp_password
                 })
         
             except Exception as e:
                 print("eeror",e)
                 raise
+
+
+class ChangePasswordView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        serializer = ChangePasswordSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        user = request.user
+
+        if not user.check_password(
+            serializer.validated_data["old_password"]
+        ):
+            return Response(
+                {
+                    "message": "Old password is incorrect"
+                },
+                status=400
+            )
+
+        user.set_password(
+            serializer.validated_data["new_password"]
+        )
+
+        user.must_change_password = False
+
+        user.save()
+
+        return Response(
+            {
+                "message": "Password changed successfully"
+            }
+        )
 
 
 
