@@ -1,7 +1,12 @@
+
+import math
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -56,14 +61,87 @@ class TaskListView(APIView):
 
     def get(self, request):
 
-        tasks = Task.objects.all().order_by("-created_at")
+        tasks = Task.objects.all()
+
+
+        # filter
+
+        status = request.query_params.get(
+            "status"
+        )
+
+        if status:
+            tasks = tasks.filter(
+                status=status
+            )
+
+        assigned_to = request.query_params.get(
+            "assigned_to"
+        )
+
+        if assigned_to:
+            tasks = tasks.filter(
+                assigned_to_id=assigned_to
+            )
+
+        # search
+
+        search = request.query_params.get(
+            "search"
+        )
+
+        if search:
+            tasks = tasks.filter(
+                title__icontains=search
+            )
+
+         # order
+
+        ordering = request.query_params.get(
+            "ordering"
+        )
+
+        if ordering:
+            tasks = tasks.order_by(
+                ordering
+            )
+
+        # pagination
+
+        page = int(
+            request.query_params.get("page",1)
+            )
+        
+        page_size = int(request.query_params.get(
+        "page_size",
+        10
+        )
+        )
+
+        start = (page - 1) * page_size
+
+        end = start + page_size
+
+        total_count = tasks.count()
+
+        total_pages = math.ceil(
+        total_count / page_size
+        )
+
+        tasks = tasks[start:end]
 
         serializer = TaskListSerializer(
             tasks,
             many=True
         )
 
-        return Response(serializer.data)
+        return Response({
+            "count": total_count,
+            "page": page,
+            "page_size": page_size,
+            "total_pages" : total_pages,
+            "results": serializer.data
+        })
     
 class MyTaskListView(APIView):
 

@@ -1,4 +1,5 @@
 import secrets
+import math
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -62,14 +63,69 @@ class EmployeeListView(APIView):
 
     def get(self, request):
 
-        employees = User.objects.filter(role=UserRole.EMPLOYEE)
+        employees = User.objects.filter(
+            role=UserRole.EMPLOYEE
+        )
+
+        # Search
+        search = request.query_params.get(
+            "search"
+        )
+
+        if search:
+            employees = employees.filter(
+                email__icontains=search
+            )
+
+        # Sorting
+        ordering = request.query_params.get(
+            "ordering"
+        )
+
+        if ordering:
+            employees = employees.order_by(
+                ordering
+            )
+
+        # Pagination
+        page = int(
+            request.query_params.get(
+                "page",
+                1
+            )
+        )
+
+        page_size = int(
+            request.query_params.get(
+                "page_size",
+                10
+            )
+        )
+
+        total_count = employees.count()
+
+        start = (page - 1) * page_size
+
+        end = start + page_size
+
+        total_pages = math.ceil(
+        total_count / page_size
+        )
+
+        employees = employees[start:end]
 
         serializer = EmployeeGetSerializer(
             employees,
             many=True
         )
 
-        return Response(serializer.data)
+        return Response({
+            "count": total_count,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages,
+            "results": serializer.data
+        })
     
 
 
