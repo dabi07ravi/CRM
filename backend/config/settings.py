@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'accounts',
     'tasks',
     'employees',
+    'dashboard',
     'rest_framework',
 ]
 
