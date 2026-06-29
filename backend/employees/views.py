@@ -4,6 +4,7 @@ import math
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from accounts.choices import UserRole
 from accounts.permissions import IsAdmin
@@ -17,7 +18,7 @@ User = get_user_model()
 from employees.serializers.EmployeeCreateSerializer import EmployeeCreateSerializer
 from employees.serializers.EmployeeGetSerilaizer import EmployeeGetSerializer
 from employees.serializers.ChangePasswordSerializer import ChangePasswordSerializer
-
+from employees.serializers.EmployeeUpdateSerializer import EmployeeUpdateSerializer
 
 class EmployeeCreateView(APIView):
         
@@ -57,6 +58,38 @@ class EmployeeCreateView(APIView):
                 print("eeror",e)
                 raise
 
+class EmployeeUpdateView(APIView):
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def patch(self, request, id):
+
+        employee = get_object_or_404(
+            User,
+            id=id,
+            role=UserRole.EMPLOYEE
+        )
+
+
+        print("employeeeee",employee)
+
+        serializer = EmployeeUpdateSerializer(
+            employee,
+            data=request.data,
+            partial=True
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        serializer.save()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+    
 
 class ChangePasswordView(APIView):
 
@@ -216,6 +249,7 @@ class EmployeeDeleteView(APIView):
         return Response({
             "message": "Employee deleted successfully"
         })
+    
     
 
 
