@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'employees',
     'dashboard',
     'rest_framework',
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -59,6 +60,7 @@ AUTH_USER_MODEL = "accounts.User"
 # ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -163,3 +165,9 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
